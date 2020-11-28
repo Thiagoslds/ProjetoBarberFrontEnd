@@ -40,13 +40,13 @@ const AuthProvider: React.FC = ({children}) => {
 
     const signIn = useCallback( async ({email, password}) => {
         /*Envia o email e senha do formulario para a api do node, na rota do post; semelhante ao
-        insomnia em sessions */        
+        insomnia em sessions */    
         const response = await api.post('sessions', {
             email,
             password
         });
         const {token, user} = response.data;
-        
+
         /*Salvar as informações obtidas no local storage; prefixo gobarber para identificar*/
         localStorage.setItem('@GoBarber:token', token); 
         localStorage.setItem('@GoBarber:user', JSON.stringify(user)); 
@@ -62,6 +62,7 @@ const AuthProvider: React.FC = ({children}) => {
 
         setData({} as AuthState);
     }, []);
+
 
     return ( 
         /*o provider permite que toda aplicação dentro tenha acesso ao contexto */

@@ -1,4 +1,4 @@
-import styled from 'styled-components'; //Permite estilizar componentes com css e es6
+import styled, {keyframes} from 'styled-components'; //Permite estilizar componentes com css e es6
 import {shade} from 'polished';
 
 import signInBGImg from '../../assets/sign-in-background.png'
@@ -8,6 +8,14 @@ export const Container = styled.div `
     display: flex;
     align-items: stretch; /*estica o maximo cada item para ocupar todo espaço*/
 `;
+
+export const Background = styled.div `
+    flex: 1;
+    background: url(${signInBGImg}) no-repeat center;
+    background-size: cover;
+`;
+
+
 export const Content = styled.div `
     display: flex;
     flex-direction: column;
@@ -15,8 +23,27 @@ export const Content = styled.div `
     place-content: center;
 
     width: 100%;
-    max-width: 700px;
+    max-width: 700px;   
+`;
 
+const appearFromLeft = keyframes ` 
+    from {
+        opacity: 0;
+        transform: translateX(-50px); /*Aparece a 50% do espaço, vindo da esquerda*/
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0); 
+    }
+`;
+export const AnimationContainer = styled.div ` 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    place-content: center;
+
+    animation: ${appearFromLeft} 1s;
+     
     form{
         margin: 80px 0;
         width: 340px;
@@ -60,9 +87,4 @@ export const Content = styled.div `
         
 
     }
-`;
-export const Background = styled.div `
-    flex: 1;
-    background: url(${signInBGImg}) no-repeat center;
-    background-size: cover;
 `;

@@ -7,19 +7,19 @@ import * as Yup from 'yup';
 import getValidationErrors from '../../utils/getValidationErrors';
 import {useAuth} from '../../hooks/AuthContext'
 import {useToast} from '../../hooks/ToastContext'
+import {Link, useHistory} from 'react-router-dom';
 
 
 import logoImg from '../../assets/logo.svg';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 
-import {Container, Content, Background} from './styles';
+import {Container, Content, AnimationContainer, Background} from './styles';
 
 interface SignInFormData {
     email: string;
     password: string;
 }
-
 
 const SignIn: React.FC = () => {
     const formRef = useRef<FormHandles>(null);
@@ -30,11 +30,12 @@ const SignIn: React.FC = () => {
     definido dentro do app;
     Assim é permitido usar a função signin, capturando o nome e senha do usuario*/
 
-    console.log(user);
+    const history = useHistory();
 
      /*Função para manipular os dados enviados do formulario, usando modulo callback*/ 
      const handleSubmit = useCallback(async (data: SignInFormData) => {
         try{
+
             formRef.current?.setErrors({});
 
             const schema = Yup.object().shape({ /*validar o objeto data inteiro qie vai ter o 
@@ -44,15 +45,17 @@ const SignIn: React.FC = () => {
                 password: Yup.string().required('Senha obrigatória')
             });
 
+             /*envia o email e senha capturados para a função signin, definida no atuhcontext*/
+             await signIn({
+                email: data.email,
+                password: data.password,
+            });    
+
             await schema.validate(data, {
                 abortEarly: false //para nao abortat quando pegar o primeiro erro
             }); //assincrono para verificar se o data é válido          
 
-            /*envia o email e senha capturados para a função signin, definida no atuhcontext*/
-            await signIn({
-                email: data.email,
-                password: data.password,
-            });            
+            history.push('/dashboard');
 
         } catch(err){
             /*Se for um erro de validação gerado pelo Yup*/
@@ -60,6 +63,8 @@ const SignIn: React.FC = () => {
                 const errors = getValidationErrors(err); //passa o erro para a função criada
                 formRef.current?.setErrors(errors); /*interrogação para verificar se a variavel existe 
                 seta os erros no formulario, é criado pelo getvalidationerrors do tipo especifico*/
+
+                return;
              }
              addToast({
                  type: 'error',
@@ -67,24 +72,26 @@ const SignIn: React.FC = () => {
                  description: 'Ocorreu um erro ao fazer login'
              });
         }
-    }, [signIn, addToast]) //variavel externa precisa ser declarada como segundo parametro;
+    }, [signIn, addToast, history]) //variavel externa precisa ser declarada como segundo parametro;
 
     return (
     <Container>
         <Content>
-            <img src={logoImg} alt="GoBarber"/>
-            <Form ref={formRef} onSubmit={handleSubmit}>
-                <h1>Faça seu logon</h1>
+            <AnimationContainer>
+                <img src={logoImg} alt="GoBarber"/>
+                <Form ref={formRef} onSubmit={handleSubmit}>
+                    <h1>Faça seu logon</h1>
 
-                <Input name="email" icon={FiMail} placeholder="E-mail" />
-                <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
-                <Button type="submit">Entrar</Button>
-            </Form>
+                    <Input name="email" icon={FiMail} placeholder="E-mail" />
+                    <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
+                    <Button type="submit">Entrar</Button>
+                </Form>
 
-            <a href="login">
-                <FiLogIn />
-                Criar Conta
-            </a>
+                <Link to="/signup">
+                    <FiLogIn />
+                    Criar Conta
+                </Link>
+            </AnimationContainer>
         </Content>
         <Background/>
     </Container>

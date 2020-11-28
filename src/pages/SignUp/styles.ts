@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
 import {shade} from 'polished';
 
 import signUpImg from '../../assets/sign-up-background.png'
@@ -8,6 +8,7 @@ export const Container = styled.div `
     display: flex;
     align-items: stretch; /*estica o maximo cada item para ocupar todo espaço*/
 `;
+
 export const Content = styled.div `
     display: flex;
     flex-direction: column;
@@ -15,10 +16,29 @@ export const Content = styled.div `
     place-content: center;
 
     width: 100%;
-    max-width: 700px;
+    max-width: 700px;   
+`;
 
+const appearFromRight = keyframes ` 
+    from {
+        opacity: 0;
+        transform: translateX(50px); /*Aparece a 50% do espaço, vindo da esquerda*/
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0); 
+    }
+`;
+export const AnimationContainer = styled.div ` 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    place-content: center;
+
+    animation: ${appearFromRight} 1s;
+     
     form{
-        margin: 80px 0;
+        margin: 60px 0;
         width: 340px;
         text-align: center;
 
@@ -43,7 +63,7 @@ export const Content = styled.div `
     >a{
         color: #f4ede8;
         display: block;
-        margin-top: 24px;
+        margin-top: 8px;
         text-decoration: none;
         transition: color 0.2s;
 
@@ -55,12 +75,13 @@ export const Content = styled.div `
         }
 
         &:hover{
-            color: ${shade(0.2, '#f4ede8')};
+            color: ${shade(0.2, '#ff9000')};
         }
         
 
     }
 `;
+
 export const Background = styled.div `
     flex: 1;
     background: url(${signUpImg}) no-repeat center;
