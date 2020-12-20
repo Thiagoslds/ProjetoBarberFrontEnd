@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 import getValidationErrors from '../../utils/getValidationErrors';
 import {useAuth} from '../../hooks/AuthContext'
 import {useToast} from '../../hooks/ToastContext'
-import {Link, useHistory} from 'react-router-dom';
+import {Link, useHistory, useLocation} from 'react-router-dom';
 
 
 import logoImg from '../../assets/logo.svg';
@@ -15,47 +15,58 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 
 import {Container, Content, AnimationContainer, Background} from './styles';
+import api from '../../services/api';
 
-interface SignInFormData {
-    email: string;
+interface ResetPasswordFormData {
     password: string;
+    password_confirmation: string;
 }
 
-const SignIn: React.FC = () => {
+const ResetPassword: React.FC = () => {
     const formRef = useRef<FormHandles>(null);
 
     const {addToast} = useToast();
-    const {signIn} = useAuth();
     /*chama a função que contem o Hook para utilizar o contexto que o signin esta inserido,
     definido dentro do app;
     Assim é permitido usar a função signin, capturando o nome e senha do usuario*/
 
     const history = useHistory();
+    const location = useLocation();
 
      /*Função para manipular os dados enviados do formulario, usando modulo callback*/ 
-     const handleSubmit = useCallback(async (data: SignInFormData) => {
+     const handleSubmit = useCallback(async (data: ResetPasswordFormData) => {
         try{
 
             formRef.current?.setErrors({});
 
+            /*Faz a confirmação de senha, mostrano o icone caso as senhas nao sejam iguais */
             const schema = Yup.object().shape({ /*validar o objeto data inteiro qie vai ter o 
                 formato shape */
-                name: Yup.string().required('Nome Obrigatório'),
-                email: Yup.string().required('E-mail obrigatório').email('Digite um e-mail válido'),
-                password: Yup.string().required('Senha obrigatória')
-            });
-
-             /*envia o email e senha capturados para a função signin, definida no atuhcontext*/
-             await signIn({
-                email: data.email,
-                password: data.password,
-            });    
+                password: Yup.string().required('Senha obrigatória'),
+                password_confirmation: Yup.string().oneOf(
+                    [Yup.ref('password'), undefined],
+                    'As senhas não correspondem.'
+                ),
+            }); 
 
             await schema.validate(data, {
                 abortEarly: false //para nao abortat quando pegar o primeiro erro
-            }); //assincrono para verificar se o data é válido          
+            }); //assincrono para verificar se o data é válido        
+            
+            const {password, password_confirmation} = data;
+            const token = location.search.replace('?token=', ''); /*O location retorna um objeto
+            que contem um campo search, com a url com o token. O replace é para tirar essa
+            expressão e ficar apenas com o token*/
 
-            history.push('/dashboard');
+            if(!token) {throw new Error();}
+
+            await api.post('/password/reset', {
+                password,
+                password_confirmation,
+                token
+            })
+
+            history.push('/');
 
         } catch(err){
             /*Se for um erro de validação gerado pelo Yup*/
@@ -68,11 +79,11 @@ const SignIn: React.FC = () => {
              }
              addToast({
                  type: 'error',
-                 title: 'Erro na autenticação',
-                 description: 'Ocorreu um erro ao fazer login'
+                 title: 'Erro ao resetar a senha',
+                 description: 'Ocorreu um erro ao resetar sua senha, tente novamente.'
              });
         }
-    }, [signIn, addToast, history]) //variavel externa precisa ser declarada como segundo parametro;
+    }, [addToast, history, location.search]) //variavel externa precisa ser declarada como segundo parametro;
 
     return (
     <Container>
@@ -80,19 +91,14 @@ const SignIn: React.FC = () => {
             <AnimationContainer>
                 <img src={logoImg} alt="GoBarber"/>
                 <Form ref={formRef} onSubmit={handleSubmit}>
-                    <h1>Faça seu logon</h1>
+                    <h1>Resetar senha</h1>
 
-                    <Input name="email" icon={FiMail} placeholder="E-mail" />
-                    <Input name="password" icon={FiLock} type="password" placeholder="Senha" />
-                    <Button type="submit">Entrar</Button>
-
-                    <Link to="/forgot-password">Esqueci minha senha</Link>
+                    <Input name="password" icon={FiLock} type="password" placeholder="Nova senha" />
+                    <Input name="password_confirmation" icon={FiLock} 
+                        type="password" placeholder="Confirmação da senha" />
+                    <Button type="submit">Alterar senha</Button>
                 </Form>
 
-                <Link to="/signup">
-                    <FiLogIn />
-                    Criar Conta
-                </Link>
             </AnimationContainer>
         </Content>
         <Background/>
@@ -100,4 +106,4 @@ const SignIn: React.FC = () => {
 );
 }
 
-export default SignIn;
+export default ResetPassword;

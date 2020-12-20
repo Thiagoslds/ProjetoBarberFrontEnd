@@ -35,7 +35,7 @@ const Toast: React.FC<ToastProps> = ({message, style}) => {
 
     return(
         <Container type={message.type} 
-        hasdescription={!!message.description}
+        hasdescription={Number(!!message.description)}
         style={style} /*Recebe a animação criada*/
         >
                {icons[message.type || 'info'] /*Mostra o icone ou o padrão info*/} 

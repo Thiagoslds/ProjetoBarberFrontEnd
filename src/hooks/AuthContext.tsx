@@ -4,20 +4,26 @@ import api from '../services/api'
 /*Contextos servem para passar uma informação de um componente para outros acessarem
  de forma global*/
 
+interface User{
+    id: string;
+    name: string;
+    avatar_url: string;
+}
+
 interface SignInCredentials {
     email:string;
     password: string;
 }
 
 interface AuthContextData {
-    user: object;
+    user: User;
     signIn(credentials: SignInCredentials): Promise<void>;
     signOut(): void;
 }
 
 interface AuthState{
     token: string;
-    user: object;
+    user: User;
 }
 
 /*é esperado um valor inicial como parametro */
