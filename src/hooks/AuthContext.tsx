@@ -7,6 +7,7 @@ import api from '../services/api'
 interface User{
     id: string;
     name: string;
+    email: string;
     avatar_url: string;
 }
 
@@ -39,7 +40,14 @@ const AuthProvider: React.FC = ({children}) => {
         const token = localStorage.getItem('@GoBarber:token');
         const user = localStorage.getItem('@GoBarber:user');
 
-        if(token && user) return {token, user: JSON.parse(user)}
+        if(token && user) {
+            /*Coloca o token como padrão no cabeçalho, permitindo utilizar sempre quando dá F5*/
+            api.defaults.headers.authorization = `Bearer ${token}`;
+
+            return {token, user: JSON.parse(user)}
+        }
+
+        
 
         return {} as AuthState; //'hack' para nao reclamar de ter objeto vazio
     })
@@ -56,6 +64,9 @@ const AuthProvider: React.FC = ({children}) => {
         /*Salvar as informações obtidas no local storage; prefixo gobarber para identificar*/
         localStorage.setItem('@GoBarber:token', token); 
         localStorage.setItem('@GoBarber:user', JSON.stringify(user)); 
+
+        /*Coloca o token como padrão no cabeçalho, permitindo utilizar sempre quando logado*/
+        api.defaults.headers.authorization = `Bearer ${token}`;
 
         setData({token, user});
         

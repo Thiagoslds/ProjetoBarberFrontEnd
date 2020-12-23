@@ -14,6 +14,7 @@ recebe um icone como componente da pagina , por isso o react.component;
 o iconbaseprops permite utilizar propriedades dos icones, como o size */
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     name: string;
+    containerStyle?: object; /*Para pegar o container todo e nao apenas o input dentro*/
     icon?: React.ComponentType<IconBaseProps>;
 }
 
@@ -21,7 +22,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 Icon com letra maiuscula pois é necessário na tag; operado spread para pegar todas as props do input
 Container contem os estilos css 
 Icon deve vir antes, com if pois pode conter ou não no formulario*/
-const Input: React.FC<InputProps> = ({name, icon: Icon, ...rest}) =>{ 
+const Input: React.FC<InputProps> = ({name, containerStyle= {}, icon: Icon, ...rest}) =>{ 
     const inputRef = useRef<HTMLInputElement>(null); //permite utilizar todos os elementos da DOM
     const {fieldName, defaultValue, error, registerField} = useField(name); /*UseField é um
     hook (permite utilizar state sem classe), pega o nome do campo e retorna varias propriedades;
@@ -59,7 +60,7 @@ const Input: React.FC<InputProps> = ({name, icon: Icon, ...rest}) =>{
 
     return (
         //passa o estado pro estilizador container
-    <Container isErrored={!!error} isFilled={isFilled} isFocused={isFocused}> 
+    <Container style={containerStyle} isErrored={!!error} isFilled={isFilled} isFocused={isFocused}> 
         {Icon && <Icon size={20} />}
         <input 
         onFocus={handleInputFocus} /*quando input ganha o foco*/
